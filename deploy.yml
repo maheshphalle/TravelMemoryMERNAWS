@@ -1,0 +1,47 @@
+- name: Deploy TravelMemory MERN Stack
+  hosts: travelmemory
+  become: yes
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - nodejs
+          - npm
+          - git
+          - mongodb
+        state: present
+
+    - name: Clone TravelMemory repo
+      git:
+        repo: https://github.com/UnpredictablePrashant/TravelMemory.git
+        dest: /home/ubuntu/TravelMemory
+        force: yes
+
+    - name: Install backend dependencies
+      command: npm install
+      args:
+        chdir: /home/ubuntu/TravelMemory/backend
+
+    - name: Start backend
+      shell: |
+        nohup npm start > backend.log 2>&1 &
+      args:
+        chdir: /home/ubuntu/TravelMemory/backend
+        executable: /bin/bash
+
+    - name: Install frontend dependencies
+      command: npm install
+      args:
+        chdir: /home/ubuntu/TravelMemory/frontend
+
+    - name: Start frontend
+      shell: |
+        nohup npm start > frontend.log 2>&1 &
+      args:
+        chdir: /home/ubuntu/TravelMemory/frontend
+        executable: /bin/bash
